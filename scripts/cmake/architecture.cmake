@@ -13,6 +13,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-set(KERNEL_TARGET i686-elf)
-set(TESTING_TARGET i686-linux-gnu)
-set(TESTING_EMULATOR qemu-i386)
+if(NOT DEFINED CPU)
+    set(CPU ${CMAKE_HOST_SYSTEM_PROCESSOR} CACHE STRING "CPU" FORCE)
+    message(WARNING "CPU not specified, defaulting to: ${CPU}")
+endif()
+
+if(CPU STREQUAL i686)
+    set(TESTING_EMULATOR qemu-i386)
+elseif(CPU STREQUAL x86_64)
+else()
+    message(FATAL_ERROR "CPU architecture not supported: ${CPU}")
+endif()
+
+if(NOT DEFINED KERNEL_TARGET)
+    set(KERNEL_TARGET ${CPU}-elf)
+endif()
+
+if(NOT DEFINED TESTING_TARGET)
+    set(TESTING_TARGET ${CPU}-linux-gnu)
+endif()
+
+if(NOT DEFINED TESTING_EMULATOR)
+    set(TESTING_EMULATOR qemu-${CPU})
+endif()

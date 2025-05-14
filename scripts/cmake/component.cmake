@@ -20,6 +20,8 @@ add_library(
 
 add_custom_target(test)
 
+set(KERNEL_PERMITTED_LANGUAGES C ASM)
+
 function(get_parent_component)
     set(PARENT_COMPONENT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     while(TRUE)
@@ -101,6 +103,19 @@ function(kernel_component)
             INTERFACE
         )
     endif()
+    
+    foreach(SOURCE ${COMPONENT_SOURCES})
+        get_property(
+            SOURCE_LANGUAGE
+            SOURCE ${SOURCE}
+            TARGET_DIRECTORY ${COMPONENT_LIBRARY}
+            PROPERTY LANGUAGE
+        )
+
+        if(NOT SOURCE_LANGUAGE IN_LIST KERNEL_PERMITTED_LANGUAGES)
+            message(AUTHOR_WARNING "Kernel component ${COMPONENT_NAME}, source file ${SOURCE} is not a permitted language")
+        endif()
+    endforeach()
 
     add_custom_target(
         ${COMPONENT_LIBRARY}_test

@@ -28,6 +28,7 @@ function(get_googletest)
         EXCLUDE_FROM_ALL
         GIT_REPOSITORY https://github.com/google/googletest.git
         GIT_TAG v1.17.0
+        GIT_SHALLOW TRUE
     )
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
@@ -37,7 +38,7 @@ get_googletest()
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD ${CMAKE_C_STANDARD})
-set(CMAKE_C_FLAGS "-Wall -Os -fpic")
+set(CMAKE_C_FLAGS "-Wall -O3 -fpic")
 set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
 
 add_subdirectory(kernel)
