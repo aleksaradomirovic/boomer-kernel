@@ -174,6 +174,7 @@ function(kernel_component_test TEST_NAME)
         PRIVATE
             kernel_common
             ${COMPONENT_LIBRARY}
+            GTest::gtest_main
     )
     target_compile_options(
         ${TEST_EXECUTABLE}
@@ -185,7 +186,6 @@ function(kernel_component_test TEST_NAME)
         ${TEST_EXECUTABLE}
         PRIVATE
             --target=${TESTING_TARGET}
-            -static
     )
     set_property(
         TARGET ${TEST_EXECUTABLE}

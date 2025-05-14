@@ -14,11 +14,30 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.25)
-project(kernel LANGUAGES C ASM)
+project(kernel LANGUAGES C CXX ASM)
 
 include(scripts/cmake/architecture.cmake)
 
+include(FetchContent)
+
+function(get_googletest)
+    set(CMAKE_CXX_FLAGS "-Wall -O3 --target=${TESTING_TARGET}")
+
+    FetchContent_Declare(
+        googletest
+        EXCLUDE_FROM_ALL
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.17.0
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endfunction()
+
+get_googletest()
+
 set(CMAKE_C_STANDARD 23)
-set(CMAKE_C_FLAGS "-Wall -Os")
+set(CMAKE_CXX_STANDARD ${CMAKE_C_STANDARD})
+set(CMAKE_C_FLAGS "-Wall -Os -fpic")
+set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
 
 add_subdirectory(kernel)

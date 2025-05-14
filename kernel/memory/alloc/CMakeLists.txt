@@ -19,5 +19,5 @@ kernel_component(
 
 kernel_component_test(
     basic
-    test/basic.c
+    test/basic.cpp
 )
