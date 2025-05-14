@@ -17,9 +17,14 @@
 
 #pragma once
 
+#include <stddef.h>
+
 #include "memory.h"
 
 #define ALLOC_GRANULARITY PAGE_SIZE
 
 int claim_memory(paddr_t addr);
 int unclaim_memory(paddr_t addr);
+
+int acquire_memory(paddr_t *memory, size_t count);
+int release_memory(const paddr_t *memory, size_t count);

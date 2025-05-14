@@ -24,6 +24,7 @@ typedef _Atomic uint_fast8_t alloc_grain_t;
 #define ALLOC_GRAIN_BITS (sizeof(alloc_grain_t) * CHAR_BIT)
 
 alloc_grain_t *alloc_map;
+paddr_t alloc_max_addr;
 
 int claim_memory(paddr_t addr) {
     paddr_t grain_index = addr / ALLOC_GRANULARITY;
@@ -47,4 +48,39 @@ int unclaim_memory(paddr_t addr) {
     }
 
     return 0;
+}
+
+int acquire_memory(paddr_t *memory, size_t count) {
+    size_t acquired_count = 0;
+    paddr_t acquired[count];
+
+    for(paddr_t addr = 0; acquired_count < count && addr < alloc_max_addr; addr++) {
+        if(claim_memory(addr) == 0) {
+            acquired[acquired_count++] = addr;
+        }
+    }
+
+    if(acquired_count == count) {
+        for(size_t i = 0; i < count; i++) {
+            memory[i] = acquired[i];
+        }
+
+        return 0;
+    } else {
+        release_memory(acquired, acquired_count);
+    }
+
+    return -1;
+}
+
+int release_memory(const paddr_t *memory, size_t count) {
+    int status = 0;
+
+    for(size_t i = 0; i < count; i++) {
+        if(memory[i] >= alloc_max_addr || unclaim_memory(memory[i]) != 0) {
+            status = -1;
+        }
+    }
+
+    return status;
 }
