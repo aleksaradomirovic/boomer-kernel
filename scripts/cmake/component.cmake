@@ -97,6 +97,11 @@ function(kernel_component)
                 --target=${KERNEL_TARGET}
                 -ffreestanding
         )
+        target_compile_definitions(
+            ${COMPONENT_LIBRARY}
+            PRIVATE
+                ${KERNEL_DEFINES}
+        )
     else()
         add_library(
             ${COMPONENT_LIBRARY}
