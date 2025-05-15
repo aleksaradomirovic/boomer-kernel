@@ -18,6 +18,16 @@ add_library(
     INTERFACE
 )
 
+add_library(
+    kernel_static
+    INTERFACE
+)
+target_link_libraries(
+    kernel_static
+    INTERFACE
+        kernel_common
+)
+
 add_custom_target(test)
 
 set(KERNEL_PERMITTED_LANGUAGES C ASM)
@@ -99,7 +109,7 @@ function(kernel_component)
         )
         target_compile_definitions(
             ${COMPONENT_LIBRARY}
-            PRIVATE
+            PUBLIC
                 ${KERNEL_DEFINES}
         )
     else()
@@ -149,6 +159,12 @@ function(kernel_component)
 
         add_dependencies(${PARENT_COMPONENT}_test ${COMPONENT_LIBRARY}_test)
     else()
+        target_link_libraries(
+            kernel_static
+            INTERFACE
+                ${COMPONENT_LIBRARY}
+        )
+
         add_dependencies(test ${COMPONENT_LIBRARY}_test)
     endif()
 
@@ -193,7 +209,7 @@ function(kernel_component_test TEST_NAME)
         ${TEST_EXECUTABLE}
         PRIVATE
             kernel_common
-            ${COMPONENT_LIBRARY}
+            kernel_static
             GTest::gtest_main
     )
     target_compile_options(
