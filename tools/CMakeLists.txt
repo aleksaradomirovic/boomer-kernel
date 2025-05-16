@@ -13,32 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.25)
-project(kernel LANGUAGES C CXX ASM)
-
-include(scripts/cmake/architecture.cmake)
-
-set(CMAKE_C_STANDARD 23)
-set(CMAKE_CXX_STANDARD ${CMAKE_C_STANDARD})
-set(CMAKE_C_FLAGS "-Wall -O3 -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -mtune=native")
 set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
 
-add_subdirectory(tools)
+set_property(
+    DIRECTORY
+    PROPERTY EXCLUDE_FROM_ALL TRUE
+)
 
-include(FetchContent)
-
-function(get_googletest)
-    set(CMAKE_CXX_FLAGS "-Wall -O3 --target=${TESTING_TARGET}")
-
-    FetchContent_Declare(
-        googletest
-        EXCLUDE_FROM_ALL
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/thirdparty/googletest
-    )
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googletest)
-endfunction()
-
-get_googletest()
-
-add_subdirectory(kernel)
+add_subdirectory(mkvdisk)
