@@ -15,7 +15,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "disk.h"
+#include "mkdisk.h"
 
-int mbr_verify();
-int mbr_format();
+#include <fcntl.h>
+#include <unistd.h>
+
+int vdisk_create(int argc, char **argv) {
+    if(argc < 1) {
+        throw_error(EINVAL, "create disk: too few arguments");
+    }
+
+    if((disk_fd = open(argv[0], O_WRONLY | O_CREAT | O_TRUNC, 00666)) == -1) {
+        throw_error(errno, "create disk: %s", argv[0]);
+    }
+
+    return 0;
+}

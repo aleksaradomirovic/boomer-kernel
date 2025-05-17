@@ -16,3 +16,13 @@
  */
 
 #pragma once
+
+enum partition_layout_type {
+    LAYOUT_TYPE_UNKNOWN = 0,
+    LAYOUT_TYPE_MBR,
+    LAYOUT_TYPE_GPT,
+};
+
+extern int __gpt_format();
+extern int __gpt_identify();
+extern int __gpt_verify();

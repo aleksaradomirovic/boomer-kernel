@@ -15,19 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "vdisk.h"
+#include "disk.h"
+#include "mkdisk.h"
 
-#include <errno.h>
-#include <error.h>
+#include <argp.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 bool verbose = false;
-char *diskname = NULL;
-off_t logical_block_size = 0;
-
-int diskfd;
 
 static const struct argp_option opts[] = {
     { NULL, 0, NULL, 0, "Disk options:", -3 },
@@ -68,46 +66,38 @@ static const struct argp args = {
     .parser = args_parse,
 };
 
-const struct argp_child generic_args[] = {
-    { &args, 0, NULL, 0 },
-    { NULL }
-};
-
 int main(int argc, char **argv) {
+    srand(time(NULL));
+
     int idx, status;
-    if((status = argp_parse(&args, argc, argv, ARGP_IN_ORDER, &idx, NULL)) != 0) {
+    if((status = argp_parse(&args, argc, argv, 0, &idx, NULL)) != 0) {
         return status;
+    }
+
+    if(idx >= argc) {
+        error(EINVAL, 0, "no command provided");
     }
 
     if(logical_block_size == 0) {
         logical_block_size = 512;
-        if(verbose) {
-            fprintf(stderr, "assuming logical block size of %jd\n", (intmax_t) logical_block_size);
+        print_info(0, "assuming logical block size of %jd", (intmax_t) logical_block_size);
+    }
+
+    char *cmd = argv[idx];
+    if(strcmp(cmd, "create") == 0) {
+        if(vdisk_create(argc - idx - 1, argv + idx + 1) != 0) {
+            return errno;
         }
-    }
-
-    char *command;
-    if(idx < argc) {
-        command = argv[idx];
+    } else if(strcmp(cmd, "format") == 0) {
+        if(vdisk_format(argc - idx - 1, argv + idx + 1) != 0) {
+            return errno;
+        }
+    } else if(strcmp(cmd, "verify") == 0) {
+        if(vdisk_verify(argc - idx - 1, argv + idx + 1) != 0) {
+            return (errno != 0) ? errno : -1;
+        }
     } else {
-        error(EINVAL, 0, "no command specified");
-        exit(EINVAL);
-    }
-
-    char help_name[strlen(argv[0]) + strlen(command) + 2];
-    strcpy(help_name, argv[0]);
-    strcat(help_name, " ");
-    strcat(help_name, command);
-    argv[idx] = help_name;
-
-    if(strcmp(command, "create") == 0) {
-        return vdisk_create(argc - idx, argv + idx);
-    } else if(strcmp(command, "verify") == 0) {
-        return vdisk_verify(argc - idx, argv + idx);
-    } else if(strcmp(command, "format") == 0) {
-        return vdisk_format(argc - idx, argv + idx);
-    } else {
-        error(EINVAL, 0, "no such command '%s'", command);
+        error(EINVAL, 0, "unknown command '%s'", cmd);
     }
 
     return 0;

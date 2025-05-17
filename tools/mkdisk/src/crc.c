@@ -15,18 +15,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "crc.h"
 
 #include <limits.h>
-#include <stddef.h>
-#include <stdint.h>
 
 #define CRC32POLY 0xEDB88320
 #define CRC32SIZE (1 << CHAR_BIT)
 
 _Static_assert(UINT32_MAX <= SIZE_MAX);
 
-static void crc32_lookup_init(uint32_t *lookup) {
+static uint32_t crc32_lookup[CRC32SIZE];
+
+__attribute__((constructor))
+static void crc32_lookup_init() {
     for(size_t i = 0; i < CRC32SIZE; i++) {
         uint32_t crc = i;
         for(unsigned char j = 0; j < 8; j++) {
@@ -36,21 +37,17 @@ static void crc32_lookup_init(uint32_t *lookup) {
                 crc >>= 1;
             }
         }
-        lookup[i] = crc;
+        crc32_lookup[i] = crc;
     }
 }
 
-[[maybe_unused]]
-static uint32_t crc32(void *crcbuf, size_t len) {
+uint32_t crc32(void *crcbuf, size_t len) {
     unsigned char *buf = crcbuf;
-
-    const uint32_t lookup[CRC32SIZE];
-    crc32_lookup_init((uint32_t *) lookup);
 
     uint32_t crc = ~0;
     for(size_t i = 0; i < len; i++) {
         size_t idx = (crc ^ buf[i]) & ((1 << CHAR_BIT) - 1);
-        crc = (crc >> 8) ^ lookup[idx];
+        crc = (crc >> 8) ^ crc32_lookup[idx];
     }
 
     return crc;

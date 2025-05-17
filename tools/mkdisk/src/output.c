@@ -15,16 +15,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "disk/mbr.h"
+#include "mkdisk.h"
 
-#include <errno.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
-int mbr_verify() {
-    errno = ENOTSUP;
-    return -1;
-}
+void print_info(unsigned int flags, const char *argfmt, ...) {
+    char fmt[strlen(argfmt) + 2];
+    strcpy(fmt, argfmt);
+    strcat(fmt, "\n");
 
-int mbr_format() {
-    errno = ENOTSUP;
-    return -1;
+    va_list args;
+    va_start(args, argfmt);
+    if(verbose || (flags & PRINT_INFO_ALWAYS)) {
+        vfprintf(stderr, fmt, args);
+    }
+    va_end(args);
 }

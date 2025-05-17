@@ -15,6 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-int main(int argc, char **argv) {
-    return 0;
+#pragma once
+
+#include <errno.h>
+#include <error.h>
+
+#define throw_error(num, fmt, ...) { \
+    errno = num; \
+    error(0, errno, fmt __VA_OPT__(,) __VA_ARGS__); \
+    return -1; \
 }
+
+extern bool verbose;
+
+int vdisk_create(int argc, char **argv);
+int vdisk_format(int argc, char **argv);
+int vdisk_verify(int argc, char **argv);
+
+#define PRINT_INFO_ALWAYS (1 << 0)
+void print_info(unsigned int flags, const char *fmt, ...);

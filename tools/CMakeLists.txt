@@ -21,4 +21,4 @@ set_property(
     PROPERTY EXCLUDE_FROM_ALL TRUE
 )
 
-add_subdirectory(mkvdisk)
+add_subdirectory(mkdisk)

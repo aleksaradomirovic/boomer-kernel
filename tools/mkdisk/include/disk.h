@@ -17,5 +17,21 @@
 
 #pragma once
 
-int gpt_verify();
-int gpt_format();
+#include "disktype.h"
+
+#include <stddef.h>
+#include <unistd.h>
+
+extern int disk_fd;
+extern off_t logical_block_size;
+
+extern enum partition_layout_type disk_type;
+
+int open_disk(const char *path);
+int seek_block(off_t lba);
+int truncate_up(off_t total_sectors);
+off_t get_total_sectors();
+int identify_disk();
+
+ssize_t read_disk(void *buf, size_t len);
+ssize_t write_disk(const void *buf, size_t len);

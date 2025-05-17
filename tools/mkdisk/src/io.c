@@ -15,50 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "vdisk.h"
+#include "io.h"
 
 #include <errno.h>
 #include <limits.h>
-#include <stdckdint.h>
-#include <stddef.h>
-#include <unistd.h>
 
-[[maybe_unused]]
-static off_t goto_lba(off_t lba) {
-    off_t offset;
-    if(ckd_mul(&offset, lba, logical_block_size)) {
-        errno = ERANGE;
-        return -1;
-    }
-
-    if(lseek(diskfd, offset, SEEK_SET) < 0) { // move to LBA 1
-        return -1;
-    }
-
-    return 0;
-}
-
-[[maybe_unused]]
-static off_t get_disk_size() {
-    return lseek(diskfd, 0, SEEK_END);
-}
-
-[[maybe_unused]]
-static off_t get_disk_blocks() {
-    off_t size = get_disk_size();
-    if(size < 0) {
-        return -1;
-    }
-    
-    return size / logical_block_size;
-}
-
-[[maybe_unused]]
-static ssize_t readf(int fd, void *buf, size_t count) {
+ssize_t readf(int fd, void *buf, size_t count) {
     if(count > SSIZE_MAX) {
-        errno = EINVAL;
+        errno = ERANGE;
         return -1;
     }
 
@@ -77,10 +41,9 @@ static ssize_t readf(int fd, void *buf, size_t count) {
     return (ssize_t) total;
 }
 
-[[maybe_unused]]
-static ssize_t writef(int fd, const void *buf, size_t count) {
+ssize_t writef(int fd, const void *buf, size_t count) {
     if(count > SSIZE_MAX) {
-        errno = EINVAL;
+        errno = ERANGE;
         return -1;
     }
 

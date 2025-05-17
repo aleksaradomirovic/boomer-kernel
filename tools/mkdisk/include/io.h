@@ -17,19 +17,9 @@
 
 #pragma once
 
-#include <argp.h>
+#include <stddef.h>
 #include <unistd.h>
 
-extern bool verbose;
+ssize_t readf(int fd, void *buf, size_t count);
+ssize_t writef(int fd, const void *buf, size_t count);
 
-// fairly universal options
-extern char *diskname;
-extern off_t logical_block_size;
-
-extern int diskfd;
-
-extern const struct argp_child generic_args[];
-
-int vdisk_create(int argc, char **argv);
-int vdisk_format(int argc, char **argv);
-int vdisk_verify(int argc, char **argv);

@@ -16,18 +16,16 @@
 include_directories(include)
 
 add_executable(
-    mkvfs
-        src/mkvfs.c
-)
+    mkdisk
+        src/disktype/gpt.c
 
-add_executable(
-    mkvdisk
-        src/disk/gpt.c
-        src/disk/mbr.c
+        src/disk/create.c
+        src/disk/format.c
+        src/disk/verify.c
 
-        src/mkvdisk/create.c
-        src/mkvdisk/format.c
-        src/mkvdisk/verify.c
-        src/mkvdisk.c
+        src/crc.c
+        src/disk.c
+        src/io.c
+        src/main.c
+        src/output.c
 )
-add_dependencies(mkvdisk mkvfs)
